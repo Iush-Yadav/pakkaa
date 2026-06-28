@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "Pact": {
+      "title": "Pact",
+      "description": "A commitment contract between users.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the pact" },
+        "membersCount": { "type": "number", "description": "Number of members in the pact" },
+        "endsInDays": { "type": "number" },
+        "successRate": { "type": "number" },
+        "completionRate": { "type": "number" },
+        "isSolo": { "type": "boolean" },
+        "frequency": { "type": "string" },
+        "stakeAmount": { "type": "number" },
+        "consequenceType": { "type": "string" },
+        "status": { "type": "string" },
+        "date": { "type": "string" },
+        "time": { "type": "string" },
+        "locationName": { "type": "string" },
+        "locationCoords": { "type": "object" },
+        "ownerId": { "type": "string", "description": "The UID of the creator." },
+        "createdAt": { "type": "string", "description": "Timestamp" },
+        "updatedAt": { "type": "string", "description": "Timestamp" }
+      },
+      "required": ["title", "ownerId", "status", "stakeAmount", "isSolo"]
+    },
+    "UserStats": {
+      "title": "UserStats",
+      "description": "Stats for a user like reliability days and forfeited amount.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "reliabilityDays": { "type": "number" },
+        "forfeitedAmount": { "type": "number" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "reliabilityDays", "forfeitedAmount", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "pacts/{pactId}": {
+      "schema": "Pact",
+      "description": "Stores pacts created by users."
+    },
+    "userStats/{userId}": {
+      "schema": "UserStats",
+      "description": "Stores statistics for each user."
+    }
+  }
+}

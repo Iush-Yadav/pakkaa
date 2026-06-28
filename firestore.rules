@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helpers
+    function isSignedIn() { return request.auth != null; }
+    function isValidId(id) { return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidPact(data) {
+      return data.keys().hasAll(['title', 'ownerId', 'status', 'stakeAmount', 'isSolo'])
+        && data.title is string && data.title.size() <= 200
+        && data.ownerId == request.auth.uid
+        && data.status is string && data.status.size() <= 50
+        && data.stakeAmount is number
+        && data.isSolo is bool;
+    }
+
+    match /pacts/{pactId} {
+      allow read: if isSignedIn() && existing().ownerId == request.auth.uid;
+      allow create: if isSignedIn() 
+                    && isValidId(pactId) 
+                    && isValidPact(incoming())
+                    && incoming().ownerId == request.auth.uid;
+      allow update: if isSignedIn() 
+                    && existing().ownerId == request.auth.uid
+                    && isValidPact(incoming())
+                    && incoming().ownerId == existing().ownerId;
+      allow delete: if isSignedIn() && existing().ownerId == request.auth.uid;
+    }
+
+    function isValidUserStats(data) {
+      return data.keys().hasAll(['userId', 'reliabilityDays', 'forfeitedAmount', 'updatedAt'])
+        && data.userId == request.auth.uid
+        && data.reliabilityDays is number
+        && data.forfeitedAmount is number;
+    }
+
+    match /userStats/{userId} {
+      allow read: if isSignedIn() && userId == request.auth.uid;
+      allow create: if isSignedIn() 
+                    && userId == request.auth.uid
+                    && isValidUserStats(incoming())
+                    && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() 
+                    && userId == request.auth.uid
+                    && existing().userId == request.auth.uid
+                    && isValidUserStats(incoming())
+                    && incoming().userId == existing().userId;
+    }
+  }
+}

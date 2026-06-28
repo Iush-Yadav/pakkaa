@@ -1,0 +1,6 @@
+{
+  "name": "Pakka.",
+  "description": "A high-fidelity technical habit contract and social escrow commitment app.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
